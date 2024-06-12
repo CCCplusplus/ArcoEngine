@@ -4,12 +4,12 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include  <dinput.h>
 
-class Mouse
+class MouseD
 {
 public:
-	Mouse();
+	MouseD();
 
-	~Mouse();
+	~MouseD();
 
 
 	bool Initialize(HWND windHandle);
@@ -60,4 +60,3 @@ private:
 	void Shutdown();
 	
 };
-

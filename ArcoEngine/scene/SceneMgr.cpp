@@ -5,6 +5,10 @@
 #include "model/CuboT.h"
 #include "model/Panel.h"
 #include "../render/DXCamera.h"
+#include "../MouseD.h"
+#define _USE_MATH_DEFINES
+#include "math.h"
+#include "cmath"
 
 static float cblack[3] = { 0.0f, 0.0f, 0.0f };
 static float cblue[3] = { 0.01176f, 0.01568f, 0.43529f };
@@ -19,6 +23,8 @@ CSceneMgr::CSceneMgr(void)
 	, mPanel(nullptr)
 	, angle(0.f)
 	, jumpTime(0.f)
+    , windowWidth(680)
+    , windowHeight(680)
 {
 }
 
@@ -35,6 +41,41 @@ void CSceneMgr::changeCamera(float x, float y, float z)
 	mCamera->setCameraView(x, y, z);
 }
 
+void CSceneMgr::keyPress(float lx, float ly)
+{
+    MouseActions(lx, ly); // Actualizamos las coordenadas del mouse
+
+    // Verificamos si se hace clic en alguna pulga
+    for (int i = 0; i < 12; ++i)
+    {
+        if (pulgas[i].alive)
+        {
+            float pulgaX = pulgas[i].getXPosition();
+            float pulgaY = pulgas[i].getYPosition();
+            float pulgaZ = pulgas[i].getZPosition();
+
+            // Aquí, la lógica depende del tamaño y posición de la pulga.
+            // Ajusta estas condiciones según la geometría exacta de tus pulgas.
+            if (mx >= pulgaX - 0.6f && mx <= pulgaX + 0.6f &&
+                my >= pulgaY - 0.6f && my <= pulgaY + 0.6f)
+            {
+                pulgas[i].Kill();
+                break; // Opcional: si solo quieres eliminar una pulga por clic
+            }
+        }
+    }
+}
+
+
+void CSceneMgr::MouseActions(float lx, float ly)
+{
+    
+    mx = (lx / windowWidth) * 2.0f - 1.0f;
+    my = 2.0f - (ly / windowHeight) * 2.0f;
+
+    //pin.setPosition(-mx, my, pin.getZPosition());
+}
+
 void CSceneMgr::Initialize(
 	ID3D11Device* device, ID3D11DeviceContext* dcontext)
 {
@@ -49,7 +90,11 @@ void CSceneMgr::Initialize(
 	mPanel->Initialize(mCamera);
 	mPanel->InsertModel();
 
+    mx = 0.0;
+    my = 0.0;
+
 	arena.Initialize(device, dcontext, mCamera, L"mosaic.png", "data/arena.obj");
+    pin.Initialize(device, dcontext, mCamera, L"Pinzas.png", "data/tweezers.obj");
 	pulgas[0].Initialize(device, dcontext, mCamera, L"Pulga-Verde.png", "data/pulga.obj");
 	pulgas[1].Initialize(device, dcontext, mCamera, L"Pulga-azul.png", "data/pulga.obj");
 	pulgas[2].Initialize(device, dcontext, mCamera, L"Pulga-roja.png", "data/pulga.obj");
@@ -66,39 +111,70 @@ void CSceneMgr::Initialize(
 
 void CSceneMgr::update(float deltaTime)
 {
-	angle += deltaTime; // Para la rotación de la arena
+    angle += deltaTime; // Para la rotación de la arena
 
-	// Actualización del tiempo de salto
-	jumpTime += deltaTime;
+    
+    jumpTime += deltaTime;
 
-	// Parámetros del salto
-	const float jumpHeight = 0.5f;
-	const float jumpFrequency = 2.0f;
+    // Parámetros del salto
+    const float jumpHeight = 0.5f;
+    const float jumpFrequency = 2.0f;
 
-	// Calculo del desplazamiento en y para las pulgas
-	for (int i = 0; i < 12; ++i)
-	{
-		float jumpOffset = jumpHeight * fabs(sinf(jumpFrequency * jumpTime + i)); // Desplazamiento de salto basado en el tiempo y la posición de la pulga
-		pulgas[i].setPosition(0.0f, jumpOffset, 0.0f); // Asignar la nueva posición a la pulga
-	}
+    // Calculo del desplazamiento en y para las pulgas
+    for (int i = 0; i < 12; ++i)
+    {
+        float jumpOffset = jumpHeight * fabs(sinf(jumpFrequency * jumpTime + i)); // Desplazamiento de salto basado en el tiempo y la posición de la pulga
+        pulgas[i].setPosition(pulgas[i].getXPosition(), jumpOffset, pulgas[i].getZPosition()); // Asignar la nueva posición en Y a la pulga
+    }
+
+    float sizeMax = 1.5f;
+    float sizeMin = 1.0f;
+    const float sizeFrequency = 0.5f;
+
+    size = sizeMin + (sizeMax - sizeMin) * 0.5f * (1.0f + sinf(sizeFrequency * jumpTime * 2.0f * M_PI));
 }
 
 void CSceneMgr::draw(float deltaTime)
 {
-	// Rotación de la arena
-	arena.drawModel(0, 0, 0, 0, angle);
+    // Rotación de la arena
+    arena.drawModel(0, 0, 0, 0, angle, 1.2);
 
-	// Dibujo de las pulgas con su posición actualizada
-	pulgas[0].drawModel(0.1, pulgas[0].getYPosition(), 0, 0, 0);
-	pulgas[1].drawModel(0.1, pulgas[1].getYPosition(), 0.5, 0, 0);
-	pulgas[2].drawModel(-0.4, pulgas[2].getYPosition(), 0, 0, 0);
-	pulgas[3].drawModel(0.2, pulgas[3].getYPosition(), 0.3, 0, 0);
-	pulgas[4].drawModel(0.36, pulgas[4].getYPosition(), 0, 0, 0);
-	pulgas[5].drawModel(0.3, pulgas[5].getYPosition(), 0.5, 0, 0);
-	pulgas[6].drawModel(-0.6, pulgas[6].getYPosition(), 0, 0, 0);
-	pulgas[7].drawModel(-0.1, pulgas[7].getYPosition(), 0.3, 0, 0);
-	pulgas[8].drawModel(0.4, pulgas[8].getYPosition(), -0.4, 0, 0);
-	pulgas[9].drawModel(0.2, pulgas[9].getYPosition(), 0.8, 0, 0);
-	pulgas[10].drawModel(-.7, pulgas[10].getYPosition(), 0.4, 0, 0);
-	pulgas[11].drawModel(-0.2, pulgas[11].getYPosition(), 0.45, 0, 0);
+    // Dibujar las pinzas en la nueva posición del mouse
+    pin.drawModel(-mx, my, 2, 90, -90, 1);
+
+    // Dibujo de las pulgas con su posición actualizada
+    const float maxRadius = 0.5f; // Radio máximo del plato
+
+    for (int i = 0; i < 12; ++i)
+    {
+        // Obtener la posición de la pulga
+        float x = pulgas[i].getXPosition();
+        float y = pulgas[i].getYPosition();
+        float z = pulgas[i].getZPosition();
+
+        // Si la pulga está tocando el plato (condición puede ajustarse según el tamaño de la pulga y el plato)
+        if (y <= 0.01f)
+        {
+            // Mover la pulga en la dirección de la rotación del plato
+            float movementSpeed = 0.1f; // Velocidad de movimiento, ajustar según sea necesario
+            float deltaX = movementSpeed * cos(angle);
+            float deltaZ = movementSpeed * sin(angle);
+
+            float newX = x + deltaX;
+            float newZ = z + deltaZ;
+
+            // Verificar que la nueva posición no exceda el radio máximo del plato
+            float distanceFromCenter = sqrt(newX * newX + newZ * newZ);
+            if (distanceFromCenter <= maxRadius)
+            {
+                x = newX;
+                z = newZ;
+            }
+
+            // Actualizar la posición de la pulga
+            pulgas[i].setPosition(x, y, z);
+        }
+        
+        pulgas[i].drawModel(x + (i * 0.045), y, z + (i * 0.045), 0, 0, 1);
+    }
 }

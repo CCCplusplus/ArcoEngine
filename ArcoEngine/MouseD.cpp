@@ -1,15 +1,15 @@
-#include "Mouse.h"
+#include "MouseD.h"
 
-Mouse::Mouse()
+MouseD::MouseD()
 {
 }
 
-Mouse::~Mouse()
+MouseD::~MouseD()
 {
 	Shutdown();
 }
 
-void Mouse::Reset()
+void MouseD::Reset()
 {
 	mDI = nullptr;
 	mMouse = nullptr;
@@ -19,7 +19,7 @@ void Mouse::Reset()
 	ResetMouse();
 }
 
-void Mouse::ResetMouse()
+void MouseD::ResetMouse()
 {
 	memset(&mMouseState, 0, sizeof(mMouseState));
 	mMousePosInitialized = false;
@@ -29,7 +29,7 @@ void Mouse::ResetMouse()
     mLeftButtonDoubleClicked = false;
 }
 
-bool Mouse::Initialize(HWND windHandle)
+bool MouseD::Initialize(HWND windHandle)
 {
 	mWindowHandle = windHandle;
 	if (FAILED(CoCreateInstance(CLSID_DirectInput8, nullptr, CLSCTX_INPROC_SERVER, IID_IDirectInput8W, (void**)&mDI)))
@@ -54,7 +54,7 @@ bool Mouse::Initialize(HWND windHandle)
     return true;
 }
 
-void Mouse::Poll()
+void MouseD::Poll()
 {
     POINT old_mouse_pos = mMousePos;
     if (!GetCursorPos(&mMousePos))
@@ -116,22 +116,22 @@ void Mouse::Poll()
     }
 }
 
-void Mouse::HideCursor()
+void MouseD::HideCursor()
 {
     ::ShowCursor(false);
 }
 
-void Mouse::ShowCursor()
+void MouseD::ShowCursor()
 {
     ::ShowCursor(true);
 }
 
-void Mouse::SetExclusive(bool inExclusive)
+void MouseD::SetExclusive(bool inExclusive)
 {
     mMouse->SetCooperativeLevel(mWindowHandle, (inExclusive ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND);
 }
 
-void Mouse::Shutdown()
+void MouseD::Shutdown()
 {
     if (mMouse)
     {

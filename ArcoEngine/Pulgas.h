@@ -16,9 +16,15 @@ public:
 	void draw();
 
 	void setPosition(float x, float y, float z);
+	float getXPosition() const;
 	float getYPosition() const;
+	float getZPosition() const;
 
-	void drawModel(float x, float y, float z, float angX, float angY);
+	bool alive = true;
+
+	void Kill() { alive = false; }
+
+	void drawModel(float x, float y, float z, float angX, float angY, float change);
 
 private:
 

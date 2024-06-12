@@ -149,7 +149,7 @@
     <ClInclude Include="core\ArcosApp.h" />
     <ClInclude Include="core\timer\Timer.h" />
     <ClInclude Include="core\WinApplication.h" />
-    <ClInclude Include="Mouse.h" />
+    <ClInclude Include="MouseD.h" />
     <ClInclude Include="Pulgas.h" />
     <ClInclude Include="render\DXCamera.h" />
     <ClInclude Include="render\DXCore.h" />
@@ -179,7 +179,7 @@
   <ItemGroup>
     <ClCompile Include="core\ArcosApp.cpp" />
     <ClCompile Include="core\WinApplication.cpp" />
-    <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="MouseD.cpp" />
     <ClCompile Include="Pulgas.cpp" />
     <ClCompile Include="render\DXCamera.cpp" />
     <ClCompile Include="render\DXCore.cpp" />

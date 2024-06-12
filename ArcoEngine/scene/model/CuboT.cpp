@@ -59,7 +59,7 @@ void CCuboT::InsertModel(const std::string &modelname)
 	setBuffers();
 }
 
-void CCuboT::drawModel(float lx, float ly, float lz, float rotationAngleX, float rotationAngleY)
+void CCuboT::drawModel(float lx, float ly, float lz, float rotationAngleX, float rotationAngleY, float enbigens)
 {
 	setShaders();
 	setRenderProperties();
@@ -67,14 +67,16 @@ void CCuboT::drawModel(float lx, float ly, float lz, float rotationAngleX, float
 	ID3D11Buffer* conbuf = mMaterialTexture->GetVConstantBuffer0();
 
 	// Crear y aplicar la matriz de transformación con rotación en X y Y
+	MathUtil::CMatrix scalation = MathUtil::MatrixScale(enbigens, enbigens, enbigens);
 	MathUtil::CMatrix translation = MathUtil::MatrixTranslation(lx, ly, lz);
 	MathUtil::CMatrix rotationX = MathUtil::MatrixRotationX(rotationAngleX);
 	MathUtil::CMatrix rotationY = MathUtil::MatrixRotationY(rotationAngleY);
 	MathUtil::CMatrix rotation = MathUtil::Multiply(rotationX, rotationY);
-	MathUtil::CMatrix transform = MathUtil::Multiply(rotation, translation); // Combina la rotación y la traslación
-	transform = MathUtil::MatrixTranspose(transform);
+	MathUtil::CMatrix transform = MathUtil::Multiply(scalation, rotation); // Combina la rotación y la traslación
+	MathUtil::CMatrix transformer = MathUtil::Multiply(transform, translation);
+	transformer = MathUtil::MatrixTranspose(transformer);
 
-	mpContext->UpdateSubresource(conbuf, 0, nullptr, &transform, 0, 0);
+	mpContext->UpdateSubresource(conbuf, 0, nullptr, &transformer, 0, 0);
 	mpContext->VSSetConstantBuffers(0, 1, &conbuf);
 
 	mpContext->DrawIndexed(mIndexBufferSize, 0, 0);

@@ -114,7 +114,7 @@
     <ClInclude Include="Pulgas.h">
       <Filter>scene\logic</Filter>
     </ClInclude>
-    <ClInclude Include="Mouse.h" />
+    <ClInclude Include="MouseD.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\ArcosApp.cpp">
@@ -186,7 +186,7 @@
     <ClCompile Include="Pulgas.cpp">
       <Filter>scene\logic</Filter>
     </ClCompile>
-    <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="MouseD.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="data\ColorShader_PS.fx">
